@@ -26,3 +26,7 @@ services:
     App\Decorator\JwtDecorator:
         decorates: 'api_platform.openapi.factory'
         arguments: ['@.inner']
+
+    App\DataFixtures\Providers\EncodePasswordProvider:
+        tags:
+            - { name: nelmio_alice.faker.provider }

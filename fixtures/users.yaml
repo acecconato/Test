@@ -1,0 +1,13 @@
+App\Entity\User:
+  user_1:
+    email: 'partner1@demo.com'
+    password: <encodePassword('demo')>
+    roles: '["ROLE_USER"]'
+  user_2:
+    email: 'partner2@demo.com'
+    password: <encodePassword('demo')>
+    roles: '["ROLE_USER"]'
+  user_3:
+    email: 'admin@demo.com'
+    password: <encodePassword('demo')>
+    roles: '["ROLE_ADMIN"]'

@@ -1,0 +1,8 @@
+App\Entity\Client:
+  client_{1..100}:
+    firstName: <firstName()>
+    lastName: <lastName()>
+    email: <email()>
+    phoneNumber: <phoneNumber()>
+    createdAt: <(new DateTimeImmutable('2020-01-01 12:00:00.000000'))>
+    createdBy: '@user_*'
