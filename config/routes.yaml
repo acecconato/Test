@@ -5,3 +5,7 @@ controllers:
 authentication_token:
     path: /authentication_token
     methods: ['POST']
+
+api_doc:
+    path: /api/docs
+    controller: api_platform.swagger_ui.action

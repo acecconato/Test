@@ -8,20 +8,21 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\Column(unique: true)]
+    #[ORM\GeneratedValue()]
+    private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(['client.read'])]
     private ?string $email = null;
 
+    /** @var array<string> */
     #[ORM\Column]
     private array $roles = [];
 
@@ -29,12 +30,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    private ?string $password = null;
+    private string $password;
 
-    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Client::class, cascade: [
-        'persist',
-        'remove',
-    ], orphanRemoval: true)]
+    /** @var Collection<int, Client> */
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Client::class, cascade: ['persist', 'remove'])]
     private Collection $clients;
 
     public function __construct()
@@ -42,7 +41,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->clients = new ArrayCollection();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -66,7 +65,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string)$this->email;
+        return (string) $this->email;
     }
 
     /**
@@ -81,6 +80,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
+    /**
+     * @param array<string> $roles
+     *
+     * @return $this
+     */
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
@@ -106,7 +110,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
@@ -122,9 +126,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function addClient(Client $client): self
     {
-        if ( ! $this->clients->contains($client)) {
+        if (!$this->clients->contains($client)) {
             $this->clients->add($client);
-            $client->setCreatedBy($this);
+            $client->setOwner($this);
         }
 
         return $this;
@@ -134,8 +138,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->clients->removeElement($client)) {
             // set the owning side to null (unless already changed)
-            if ($client->getCreatedBy() === $this) {
-                $client->setCreatedBy(null);
+            if ($client->getOwner() === $this) {
+                $client->setOwner(null);
             }
         }
 

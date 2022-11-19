@@ -5,4 +5,4 @@ App\Entity\Client:
     email: <email()>
     phoneNumber: <phoneNumber()>
     createdAt: <(new DateTimeImmutable('2020-01-01 12:00:00.000000'))>
-    createdBy: '@user_*'
+    owner: '@user_*'

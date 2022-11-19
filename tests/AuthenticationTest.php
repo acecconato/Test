@@ -1,5 +1,4 @@
 <?php
-// tests/AuthenticationTest.php
 
 namespace App\Tests;
 
@@ -21,7 +20,7 @@ class AuthenticationTest extends ApiTestCase
      */
     public function testLogin(): void
     {
-        $client    = self::createClient();
+        $client = self::createClient();
         $container = self::getContainer();
 
         $user = new User();
@@ -40,8 +39,8 @@ class AuthenticationTest extends ApiTestCase
 
         $response = $client->request('POST', '/authentication_token', [
             'headers' => ['Content-Type' => 'application/json'],
-            'json'    => [
-                'email'    => 'test@example.com',
+            'json' => [
+                'email' => 'test@example.com',
                 'password' => 'wrong',
             ],
         ]);
@@ -51,8 +50,8 @@ class AuthenticationTest extends ApiTestCase
 
         $response = $client->request('POST', '/authentication_token', [
             'headers' => ['Content-Type' => 'application/json'],
-            'json'    => [
-                'email'    => 'test@example.com',
+            'json' => [
+                'email' => 'test@example.com',
                 'password' => '$3CR3T',
             ],
         ]);

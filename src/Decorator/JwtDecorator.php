@@ -13,38 +13,41 @@ final class JwtDecorator implements OpenApiFactoryInterface
     ) {
     }
 
+    /**
+     * @param array<mixed> $context
+     */
     public function __invoke(array $context = []): OpenApi
     {
         $openApi = ($this->decorated)($context);
         $schemas = $openApi->getComponents()->getSchemas();
 
-        $schemas['Token']       = new \ArrayObject([
-            'type'       => 'object',
+        $schemas['Token'] = new \ArrayObject([
+            'type' => 'object',
             'properties' => [
                 'token' => [
-                    'type'     => 'string',
+                    'type' => 'string',
                     'readOnly' => true,
                 ],
             ],
         ]);
         $schemas['Credentials'] = new \ArrayObject([
-            'type'       => 'object',
+            'type' => 'object',
             'properties' => [
-                'email'    => [
-                    'type'    => 'string',
+                'email' => [
+                    'type' => 'string',
                     'example' => 'partner1@demo.com',
                 ],
                 'password' => [
-                    'type'    => 'string',
+                    'type' => 'string',
                     'example' => 'demo',
                 ],
             ],
         ]);
 
-        $schemas        = $openApi->getComponents()->getSecuritySchemes() ?? [];
+        $schemas = $openApi->getComponents()->getSecuritySchemes() ?? [];
         $schemas['JWT'] = new \ArrayObject([
-            'type'         => 'http',
-            'scheme'       => 'bearer',
+            'type' => 'http',
+            'scheme' => 'bearer',
             'bearerFormat' => 'JWT',
         ]);
 
@@ -56,7 +59,7 @@ final class JwtDecorator implements OpenApiFactoryInterface
                 responses: [
                     '200' => [
                         'description' => 'Get JWT token',
-                        'content'     => [
+                        'content' => [
                             'application/json' => [
                                 'schema' => [
                                     '$ref' => '#/components/schemas/Token',

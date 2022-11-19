@@ -7,28 +7,30 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Repository\ClientRepository;
+use App\State\ClientStateProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 #[ApiResource(
     operations: [
-        new Post(),
-        new Get(),
+        new Post(
+            normalizationContext: ['groups' => ['client.read']],
+            processor: ClientStateProcessor::class
+        ),
+        new Get(normalizationContext: ['groups' => ['client.read']]),
         new GetCollection(),
     ],
-    normalizationContext: ['groups' => 'client.read'],
-    denormalizationContext: ['groups' => 'client.write']
+    normalizationContext: ['groups' => ['client.read']],
+    denormalizationContext: ['groups' => ['client.write']]
 )]
 class Client
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\Column(unique: true, nullable: false)]
+    #[ORM\GeneratedValue()]
+    private ?int $id = null;
 
     #[ORM\Column(length: 20)]
     #[Assert\NotBlank]
@@ -54,22 +56,19 @@ class Client
     private ?string $phoneNumber = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    #[Groups(['admin.client.read'])]
+    private \DateTimeImmutable $createdAt;
 
-    #[ORM\ManyToOne(inversedBy: 'clients')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'clients')]
     #[Groups(['client.read'])]
-    #[Assert\NotNull]
-    private ?User $createdBy = null;
+    private ?User $owner = null;
 
     public function __construct()
     {
-        if ( ! $this->createdAt) {
-            $this->createdAt = new \DateTimeImmutable();
-        }
+        $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -134,14 +133,14 @@ class Client
         return $this;
     }
 
-    public function getCreatedBy(): ?User
+    public function getOwner(): ?User
     {
-        return $this->createdBy;
+        return $this->owner;
     }
 
-    public function setCreatedBy(?User $createdBy): self
+    public function setOwner(?User $owner): self
     {
-        $this->createdBy = $createdBy;
+        $this->owner = $owner;
 
         return $this;
     }
