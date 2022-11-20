@@ -1,9 +1,29 @@
 # Paytop_Test
 
+## Installation
+
+- Clone the repo
+- Configure the .env file
+- Execute `make initialize`
+
+OR
+
+- Run a `composer install`
+- Create the database `php bin/console d:d:c`
+
+Then execute `make regenerate` OR the following commands:
+- `php bin/console d:m:m`
+- `php bin/console h:f:l`
+
+### Run the web api
+- `symfony serve -d && php bin/console messenger:consume async`
+
 ## Available Commands
 
 ```Makefile
-make regenerate # Generate/Regenerate dev database and fixtures
+make initialize # Initialize the web api
+
+make regenerate # Regenerate dev database and fixtures
 
 make regenerate-test # Generate/Regenerate test database and fixtures
 
